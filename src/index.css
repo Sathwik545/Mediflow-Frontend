@@ -1,0 +1,99 @@
+/* ─────────────────────────────────────────────────────────────────
+   index.css — MediFlow HMS  Global Styles
+   Tailwind directives + CSS custom properties + base overrides
+   ───────────────────────────────────────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════════════
+   THEME TOKENS  (light = :root, dark = .dark on <html>)
+   Tailwind aliases these via tailwind.config.js colours.
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  /* Backgrounds */
+  --c-page    : #F8FAFC;
+  --c-sidebar : #FFFFFF;
+  --c-card    : #FFFFFF;
+  --c-surface : #F1F5F9;
+  --c-border  : #E2E8F0;
+
+  /* Text */
+  --c-tx1 : #0F172A;
+  --c-tx2 : #475569;
+  --c-tx3 : #94A3B8;
+}
+
+.dark {
+  /* Backgrounds */
+  --c-page    : #060B14;
+  --c-sidebar : #0A1020;
+  --c-card    : #0E1726;
+  --c-surface : #14213A;
+  --c-border  : rgba(255, 255, 255, 0.07);
+
+  /* Text */
+  --c-tx1 : #F1F5F9;
+  --c-tx2 : #94A3B8;
+  --c-tx3 : #475569;
+}
+
+/* ══════════════════════════════════════════════════════
+   BASE OVERRIDES
+   ══════════════════════════════════════════════════════ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--c-page);
+  color: var(--c-tx1);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ── Custom scrollbar (webkit) ── */
+::-webkit-scrollbar            { width: 5px; height: 5px; }
+::-webkit-scrollbar-track      { background: transparent; }
+::-webkit-scrollbar-thumb      { background: rgba(148,163,184,0.3); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover{ background: rgba(148,163,184,0.5); }
+
+/* ══════════════════════════════════════════════════════
+   CUSTOM UTILITY LAYER
+   ══════════════════════════════════════════════════════ */
+
+@layer utilities {
+  /* Glassmorphism surface */
+  .glass {
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+
+  /* Gradient text — indigo → cyan */
+  .text-gradient {
+    background: linear-gradient(135deg, #6366F1, #06B6D4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Skeleton loading shimmer */
+  .skeleton {
+    background: linear-gradient(90deg,
+      rgba(148,163,184,0.08) 25%,
+      rgba(148,163,184,0.15) 50%,
+      rgba(148,163,184,0.08) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Sidebar transition helper */
+  .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .content-transition  { transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+}

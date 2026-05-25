@@ -5,9 +5,12 @@ import apiService from '../utils/apiService';
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
 const AVATAR_COLORS = [
-  'bg-indigo-500/20 text-indigo-300', 'bg-cyan-500/20 text-cyan-300',
-  'bg-emerald-500/20 text-emerald-300', 'bg-amber-500/20 text-amber-300',
-  'bg-rose-500/20 text-rose-300', 'bg-purple-500/20 text-purple-300',
+  'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300',
+  'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
+  'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+  'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300',
+  'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300',
 ];
 const avatarColor = name => AVATAR_COLORS[((name || '?').charCodeAt(0)) % AVATAR_COLORS.length];
 const initials    = name => (name || '?').replace('Dr. ', '').split(' ').map(n => n[0]).slice(0, 2).join('');
@@ -19,16 +22,16 @@ const parseApiErrors = err => {
 };
 
 const STATUS_MAP = {
-  ACTIVE:   { label: 'Active',   bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-500' },
-  ON_LEAVE: { label: 'On Leave', bg: 'bg-amber-500/10',   text: 'text-amber-400',   dot: 'bg-amber-500'   },
-  INACTIVE: { label: 'Inactive', bg: 'bg-slate-500/10',   text: 'text-slate-400',   dot: 'bg-slate-500'   },
+  ACTIVE:   { label: 'Active',   bg: 'bg-emerald-50 dark:bg-emerald-500/15', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500 dark:bg-emerald-400' },
+  ON_LEAVE: { label: 'On Leave', bg: 'bg-amber-50   dark:bg-amber-500/15',   text: 'text-amber-700   dark:text-amber-300',   dot: 'bg-amber-500   dark:bg-amber-400'   },
+  INACTIVE: { label: 'Inactive', bg: 'bg-slate-100  dark:bg-slate-500/15',   text: 'text-slate-600   dark:text-slate-300',   dot: 'bg-slate-500   dark:bg-slate-400'   },
 };
 
 /* ─── Shared small components ────────────────────────────────────── */
 const StatusBadge = ({ status }) => {
   const s = STATUS_MAP[status] || STATUS_MAP.INACTIVE;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${s.bg} ${s.text}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${s.bg} ${s.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />{s.label}
     </span>
   );
@@ -49,7 +52,7 @@ const FieldError = ({ errors, name }) =>
 
 const inputCls = (errors, name) =>
   `w-full h-9 bg-surface border rounded-xl px-3 text-[13px] text-tx1 placeholder:text-tx3 outline-none
-   focus:ring-2 focus:ring-indigo-500/10 transition-all
+   focus:ring-2 focus:ring-indigo-500/20 transition-all
    ${errors?.[name] ? 'border-rose-500/60 focus:border-rose-500/60' : 'border-border focus:border-indigo-500/60'}`;
 
 const FormField = ({ label, required, children }) => (
@@ -140,7 +143,7 @@ const TempPasswordModal = ({ data, onClose }) => {
 };
 
 /* ─── Confirm-deactivate modal ───────────────────────────────────── */
-const ConfirmModal = ({ title, message, onConfirm, onClose, loading }) => (
+const ConfirmModal = ({ title, message, onConfirm, onClose, loading, error }) => (
   <motion.div
     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
@@ -153,6 +156,9 @@ const ConfirmModal = ({ title, message, onConfirm, onClose, loading }) => (
     >
       <h3 className="text-base font-semibold text-tx1 mb-1">{title}</h3>
       <p className="text-sm text-tx3 mb-5">{message}</p>
+      {error && (
+        <p className="text-[12px] text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2 mb-4">{error}</p>
+      )}
       <div className="flex gap-3">
         <button onClick={onClose} disabled={loading}
           className="flex-1 h-10 rounded-xl text-[13px] font-medium text-tx2 border border-border hover:bg-surface transition-colors disabled:opacity-40">
@@ -200,7 +206,7 @@ const DoctorFormModal = ({ initial, onClose, onSave }) => {
       await onSave({
         ...form,
         yearsOfExperience: Number(form.yearsOfExperience),
-        consultationFee:   Number(form.consultationFee),
+        consultationFee:   form.consultationFee, // keep as string → Jackson parses to BigDecimal exactly
       });
     } catch (err) {
       setErrors(parseApiErrors(err));
@@ -359,7 +365,7 @@ const DoctorCard = ({ doc, index, onEdit, onDelete }) => {
       transition={{ delay: index * 0.06, duration: 0.32 }}
       whileHover={{ y: -3, transition: { duration: 0.2 } }}
       className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 group
-                 hover:border-indigo-500/25 hover:shadow-glow-indigo transition-all duration-300"
+                 hover:border-indigo-500/50 dark:hover:border-indigo-500/25 hover:shadow-glow-indigo transition-all duration-300"
     >
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -369,7 +375,7 @@ const DoctorCard = ({ doc, index, onEdit, onDelete }) => {
           </div>
           <div>
             <h3 className="text-[14px] font-semibold text-tx1 leading-tight">{doc.fullName}</h3>
-            <p className="text-[12px] text-indigo-400 font-medium mt-0.5">{doc.specialization}</p>
+            <p className="text-[12px] text-indigo-600 dark:text-indigo-400 font-medium mt-0.5">{doc.specialization}</p>
           </div>
         </div>
         <StatusBadge status={doc.status} />
@@ -378,11 +384,11 @@ const DoctorCard = ({ doc, index, onEdit, onDelete }) => {
       {/* Info tiles */}
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-surface rounded-xl p-3">
-          <p className="text-[10px] text-tx3 font-medium uppercase tracking-wide mb-1">Department</p>
+          <p className="text-[11px] text-tx3 font-semibold uppercase tracking-wide mb-1">Department</p>
           <p className="text-[12px] font-semibold text-tx1 leading-snug">{doc.department}</p>
         </div>
         <div className="bg-surface rounded-xl p-3">
-          <p className="text-[10px] text-tx3 font-medium uppercase tracking-wide mb-1">Qualification</p>
+          <p className="text-[11px] text-tx3 font-semibold uppercase tracking-wide mb-1">Qualification</p>
           <p className="text-[12px] font-semibold text-tx1">{doc.qualification}</p>
         </div>
       </div>
@@ -397,12 +403,12 @@ const DoctorCard = ({ doc, index, onEdit, onDelete }) => {
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => onEdit(doc)}
-            className="p-1.5 rounded-lg text-tx3 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors" title="Edit">
+            className="p-1.5 rounded-lg text-tx3 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors" title="Edit">
             <Edit2 className="w-3.5 h-3.5" />
           </button>
           {doc.status === 'ACTIVE' && (
             <button onClick={() => onDelete(doc)}
-              className="p-1.5 rounded-lg text-tx3 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Deactivate">
+              className="p-1.5 rounded-lg text-tx3 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors" title="Deactivate">
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
@@ -422,6 +428,7 @@ const Doctors = () => {
   const [editTarget,   setEditTarget]   = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting,     setDeleting]     = useState(false);
+  const [deleteError,  setDeleteError]  = useState(null);
   const [tempPassData, setTempPassData] = useState(null);
 
   useEffect(() => { loadDoctors(); }, []);
@@ -459,7 +466,11 @@ const Doctors = () => {
     const res = await apiService.post('/api/v1/doctors', form);
     setDoctors(prev => [res.doctor ?? res, ...prev]);
     setShowAdd(false);
-    if (res.temporaryPassword) setTempPassData(res);
+    if (res.temporaryPassword) setTempPassData({
+      doctorCode: res.doctor?.doctorCode,
+      username: res.username,
+      temporaryPassword: res.temporaryPassword,
+    });
   };
 
   const handleEdit = async form => {
@@ -470,10 +481,13 @@ const Doctors = () => {
 
   const handleDelete = async () => {
     setDeleting(true);
+    setDeleteError(null);
     try {
       const updated = await apiService.del(`/api/v1/doctors/${deleteTarget.doctorCode}`);
       setDoctors(prev => prev.map(d => d.doctorCode === deleteTarget.doctorCode ? updated : d));
       setDeleteTarget(null);
+    } catch (err) {
+      setDeleteError(err?.response?.data?.message || 'Failed to deactivate doctor. Please try again.');
     } finally {
       setDeleting(false);
     }
@@ -510,13 +524,13 @@ const Doctors = () => {
             <input value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search by name or specialization…"
               className="w-full h-10 bg-card border border-border rounded-xl pl-9 pr-4 text-[13px] text-tx1 placeholder:text-tx3
-                focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all" />
+                focus:outline-none focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/20 transition-all" />
           </div>
           <div className="flex gap-2">
             {[['ALL','All'], ['ACTIVE','Active'], ['ON_LEAVE','On Leave'], ['INACTIVE','Inactive']].map(([v, l]) => (
               <button key={v} onClick={() => setFilter(v)}
                 className={`h-10 px-3.5 rounded-xl text-[12px] font-medium transition-colors whitespace-nowrap
-                  ${filter === v ? 'bg-indigo-600 text-white' : 'bg-card border border-border text-tx2 hover:border-indigo-500/40'}`}>
+                  ${filter === v ? 'bg-indigo-600 text-white' : 'bg-card border border-border text-tx2 hover:text-tx1 hover:border-indigo-500/40'}`}>
                 {l}
               </button>
             ))}
@@ -551,8 +565,9 @@ const Doctors = () => {
             title="Deactivate Doctor"
             message={`Are you sure you want to deactivate ${deleteTarget.fullName}? Their account will be marked as inactive.`}
             onConfirm={handleDelete}
-            onClose={() => setDeleteTarget(null)}
+            onClose={() => { setDeleteTarget(null); setDeleteError(null); }}
             loading={deleting}
+            error={deleteError}
           />
         )}
         {tempPassData && (

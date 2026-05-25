@@ -9,8 +9,8 @@
  */
 
 import React, { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Outlet } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Navbar  from './Navbar';
 
@@ -18,17 +18,9 @@ import Navbar  from './Navbar';
 const W_EXPANDED  = 240;
 const W_COLLAPSED = 64;
 
-/* Page transition variants */
-const pageVariants = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
-  exit:    { opacity: 0, y: -4, transition: { duration: 0.18 } },
-};
-
 const Layout = () => {
   const [collapsed,    setCollapsed]    = useState(false);
   const [mobileOpen,   setMobileOpen]   = useState(false);
-  const location = useLocation();
 
   const sw = collapsed ? W_COLLAPSED : W_EXPANDED;
 
@@ -48,24 +40,20 @@ const Layout = () => {
         onMenuClick={() => setMobileOpen(true)}
       />
 
-      {/* Main content — offset to avoid sidebar + navbar */}
+      {/* Main content — offset to avoid sidebar + navbar.
+          Each page component owns its own entry animation via motion.div variants.
+          AnimatePresence is intentionally absent here: wrapping <Outlet> in
+          AnimatePresence causes the dynamic Outlet to mount the incoming page inside
+          the exiting wrapper (because React Router context updates immediately),
+          resulting in double-mount and double API calls on every navigation. */}
       <motion.main
         animate={{ paddingLeft: sw }}
         transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
         className="pt-16 min-h-screen"
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="p-5 lg:p-7 max-w-[1600px]"
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+        <div className="p-5 lg:p-7 max-w-[1600px]">
+          <Outlet />
+        </div>
       </motion.main>
     </div>
   );

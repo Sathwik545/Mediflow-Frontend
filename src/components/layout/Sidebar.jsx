@@ -18,8 +18,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Users, Stethoscope, Calendar,
-  CreditCard, BarChart3, Bell, Settings,
-  ChevronLeft, Activity,
+  CreditCard, FileText, BarChart3, Bell, Settings,
+  ChevronLeft, Activity, ClipboardList,
 } from 'lucide-react';
 
 /* ─── Navigation item definitions ─────────────────────────────── */
@@ -27,8 +27,10 @@ const NAV_MAIN = [
   { path: '/dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
   { path: '/patients',     label: 'Patients',     icon: Users           },
   { path: '/doctors',      label: 'Doctors',      icon: Stethoscope     },
-  { path: '/appointments', label: 'Appointments', icon: Calendar        },
-  { path: '/billing',      label: 'Billing',      icon: CreditCard      },
+  { path: '/appointments',  label: 'Appointments',  icon: Calendar        },
+  { path: '/consultations', label: 'Consultations', icon: ClipboardList   },
+  { path: '/billing',       label: 'Billing',       icon: CreditCard      },
+  { path: '/invoices',      label: 'Invoices',      icon: FileText        },
   { path: '/reports',      label: 'Reports',      icon: BarChart3       },
   { path: '/notifications',label: 'Notifications',icon: Bell            },
 ];
@@ -59,8 +61,8 @@ const NavLink = ({ item, isCollapsed, onClick }) => {
         relative flex items-center gap-3 px-3 py-2.5 rounded-xl
         transition-colors duration-150 group select-none
         ${isActive
-          ? 'text-indigo-400 bg-indigo-500/[0.12]'
-          : 'text-tx2 hover:text-tx1 hover:bg-white/[0.05] dark:hover:bg-white/[0.06]'
+          ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-500/[0.18]'
+          : 'text-tx2 hover:text-tx1 hover:bg-slate-100 dark:hover:bg-white/[0.09]'
         }
       `}
     >
@@ -68,7 +70,7 @@ const NavLink = ({ item, isCollapsed, onClick }) => {
       {isActive && (
         <motion.div
           layoutId="nav-indicator"
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-indigo-500 rounded-r-full"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-indigo-600 dark:bg-indigo-400 rounded-r-full"
           transition={{ type: 'spring', bounce: 0.12, duration: 0.45 }}
         />
       )}
@@ -171,7 +173,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
           {isCollapsed && (
             <button
               onClick={onToggle}
-              className="w-full flex justify-center p-2.5 rounded-xl text-tx3 hover:text-tx1 hover:bg-white/[0.06] transition-colors mb-2"
+              className="w-full flex justify-center p-2.5 rounded-xl text-tx3 hover:text-tx1 hover:bg-white/[0.09] transition-colors mb-2"
             >
               <ChevronLeft className="w-4 h-4 rotate-180" />
             </button>

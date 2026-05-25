@@ -112,7 +112,7 @@ const Navbar = ({ sidebarWidth, onMenuClick }) => {
           placeholder="Search patients, doctors, appointments…"
           className="w-full h-9 bg-surface border border-border rounded-xl
                      pl-9 pr-3 text-[13px] text-tx1 placeholder:text-tx3
-                     focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10
+                     focus:outline-none focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/20
                      transition-all"
         />
       </div>
@@ -228,7 +228,7 @@ const Navbar = ({ sidebarWidth, onMenuClick }) => {
                 <div className="border-t border-border mt-1 pt-1">
                   <button
                     onClick={() => { setLogoutConfirmOpen(true); setProfileOpen(false); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-rose-400 hover:bg-rose-500/[0.08] transition-colors">
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-rose-400 hover:text-rose-300 hover:bg-rose-500/[0.12] transition-colors">
                     <LogOut className="w-4 h-4" /> Logout
                   </button>
                 </div>

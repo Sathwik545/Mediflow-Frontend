@@ -24,6 +24,7 @@ const API_BASE = process.env.REACT_APP_API_URL || '';
 const TOKEN_KEY         = 'mediflow_token';
 const REFRESH_TOKEN_KEY = 'mediflow_refresh_token';
 const USERNAME_KEY      = 'mediflow_username';
+const USER_KEY          = 'mediflow_user';
 
 // ─── JWT Expiry Check ─────────────────────────────────────────────────────────
 
@@ -66,6 +67,7 @@ const clearSessionData = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USERNAME_KEY);
+  localStorage.removeItem(USER_KEY);
 };
 
 // ─── Core Fetch Wrapper ───────────────────────────────────────────────────────
@@ -148,6 +150,16 @@ export const setUsername = (username)     => localStorage.setItem(USERNAME_KEY, 
 export const getUsername = ()             => localStorage.getItem(USERNAME_KEY) || '';
 export const clearUsername = ()           => localStorage.removeItem(USERNAME_KEY);
 
+/**
+ * Stores the full login response (roles, doctorCode, patientCode, username) so pages
+ * can derive role-specific API endpoints without extra round-trips.
+ */
+export const setStoredUser = (user)  => localStorage.setItem(USER_KEY, JSON.stringify(user));
+export const getStoredUser = ()      => {
+  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; }
+};
+export const clearStoredUser = ()    => localStorage.removeItem(USER_KEY);
+
 /** Wipes all session data — call on logout */
 export const clearSession = () => clearSessionData();
 
@@ -158,6 +170,7 @@ const apiService = {
   setAuthToken, clearAuthToken, isAuthenticated,
   setRefreshToken, getRefreshToken, clearRefreshToken,
   setUsername, getUsername, clearUsername,
+  setStoredUser, getStoredUser, clearStoredUser,
   clearSession,
 };
 

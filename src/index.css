@@ -18,12 +18,12 @@
   --c-sidebar : #FFFFFF;
   --c-card    : #FFFFFF;
   --c-surface : #F1F5F9;
-  --c-border  : #E2E8F0;
+  --c-border  : #CBD5E1;
 
-  /* Text */
-  --c-tx1 : #0F172A;
-  --c-tx2 : #475569;
-  --c-tx3 : #94A3B8;
+  /* Text — all meet WCAG AA on white (#FFF) */
+  --c-tx1 : #0F172A;   /* slate-900  13.7:1 */
+  --c-tx2 : #334155;   /* slate-700   8.0:1 */
+  --c-tx3 : #475569;   /* slate-600   5.9:1 */
 }
 
 .dark {
@@ -32,12 +32,12 @@
   --c-sidebar : #0A1020;
   --c-card    : #0E1726;
   --c-surface : #14213A;
-  --c-border  : rgba(255, 255, 255, 0.07);
+  --c-border  : rgba(255, 255, 255, 0.12);
 
   /* Text */
   --c-tx1 : #F1F5F9;
   --c-tx2 : #94A3B8;
-  --c-tx3 : #475569;
+  --c-tx3 : #64748B;
 }
 
 /* ══════════════════════════════════════════════════════

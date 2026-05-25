@@ -26,40 +26,47 @@ import apiService from '../utils/apiService';
 
 /* ─── Chart colour mapping for appointment distribution ────────── */
 const APPT_COLOR_MAP = {
-  Completed:   '#10B981',
-  Scheduled:   '#6366F1',
-  'In Progress': '#F59E0B',
-  Cancelled:   '#F43F5E',
+  PAYMENT_PENDING: '#F59E0B',
+  CONFIRMED:       '#3B82F6',
+  IN_PROGRESS:     '#8B5CF6',
+  COMPLETED:       '#10B981',
+  CANCELLED:       '#F43F5E',
+  NO_SHOW:         '#64748B',
+  Completed:       '#10B981',
+  'In Progress':   '#8B5CF6',
+  Cancelled:       '#F43F5E',
 };
-const APPT_COLORS_FALLBACK = ['#10B981', '#6366F1', '#F59E0B', '#F43F5E'];
+const APPT_COLORS_FALLBACK = ['#10B981', '#3B82F6', '#8B5CF6', '#F43F5E'];
 
 /* ─── Static UI config for KPI cards (icon / colour only) ──────── */
 const KPI_CONFIG = [
-  { label: 'Total Patients',        prefix: '', suffix: '', icon: Users,       iconBg: 'bg-indigo-500/10',  iconColor: 'text-indigo-400'  },
-  { label: 'Active Doctors',        prefix: '', suffix: '', icon: Stethoscope, iconBg: 'bg-cyan-500/10',    iconColor: 'text-cyan-400'    },
-  { label: "Today's Appointments",  prefix: '', suffix: '', icon: Calendar,    iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-400' },
-  { label: 'Monthly Revenue',       prefix: '$',suffix: '', icon: DollarSign,  iconBg: 'bg-amber-500/10',   iconColor: 'text-amber-400'   },
+  { label: 'Total Patients',        prefix: '', suffix: '', icon: Users,       iconBg: 'bg-indigo-500/15',  iconColor: 'text-indigo-400'  },
+  { label: 'Active Doctors',        prefix: '', suffix: '', icon: Stethoscope, iconBg: 'bg-cyan-500/15',    iconColor: 'text-cyan-400'    },
+  { label: "Today's Appointments",  prefix: '', suffix: '', icon: Calendar,    iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-400' },
+  { label: 'Monthly Revenue',       prefix: '$',suffix: '', icon: DollarSign,  iconBg: 'bg-amber-500/15',   iconColor: 'text-amber-400'   },
 ];
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
 
 const STATUS_MAP = {
-  SCHEDULED:   { label: 'Scheduled',   bg: 'bg-indigo-500/10',  text: 'text-indigo-400',  dot: 'bg-indigo-500'  },
-  IN_PROGRESS: { label: 'In Progress', bg: 'bg-amber-500/10',   text: 'text-amber-400',   dot: 'bg-amber-500'   },
-  COMPLETED:   { label: 'Completed',   bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-500' },
-  CANCELLED:   { label: 'Cancelled',   bg: 'bg-rose-500/10',    text: 'text-rose-400',    dot: 'bg-rose-500'    },
+  PAYMENT_PENDING: { label: 'Payment Pending', bg: 'bg-amber-50   dark:bg-amber-500/15',   text: 'text-amber-700   dark:text-amber-300',   dot: 'bg-amber-500   dark:bg-amber-400'   },
+  CONFIRMED:       { label: 'Confirmed',        bg: 'bg-blue-50    dark:bg-blue-500/15',    text: 'text-blue-700    dark:text-blue-300',    dot: 'bg-blue-500    dark:bg-blue-400'    },
+  IN_PROGRESS:     { label: 'In Progress',      bg: 'bg-purple-50  dark:bg-purple-500/15',  text: 'text-purple-700  dark:text-purple-300',  dot: 'bg-purple-500  dark:bg-purple-400'  },
+  COMPLETED:       { label: 'Completed',        bg: 'bg-emerald-50 dark:bg-emerald-500/15', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500 dark:bg-emerald-400' },
+  CANCELLED:       { label: 'Cancelled',        bg: 'bg-rose-50    dark:bg-rose-500/15',    text: 'text-rose-700    dark:text-rose-300',    dot: 'bg-rose-500    dark:bg-rose-400'    },
+  NO_SHOW:         { label: 'No Show',          bg: 'bg-slate-100  dark:bg-slate-500/15',   text: 'text-slate-600   dark:text-slate-300',   dot: 'bg-slate-500   dark:bg-slate-400'   },
 };
 
 const TYPE_MAP = {
-  IN_PERSON: { label: 'In-Person', bg: 'bg-slate-500/10', text: 'text-slate-400' },
-  ONLINE:    { label: 'Online',    bg: 'bg-cyan-500/10',  text: 'text-cyan-400'  },
-  FOLLOW_UP: { label: 'Follow-up', bg: 'bg-purple-500/10',text: 'text-purple-400'},
+  IN_PERSON: { label: 'In-Person', bg: 'bg-slate-100 dark:bg-slate-500/15', text: 'text-slate-600 dark:text-slate-300' },
+  ONLINE:    { label: 'Online',    bg: 'bg-cyan-50   dark:bg-cyan-500/15',  text: 'text-cyan-700  dark:text-cyan-300'  },
+  FOLLOW_UP: { label: 'Follow-up', bg: 'bg-purple-50 dark:bg-purple-500/15',text: 'text-purple-700 dark:text-purple-300'},
 };
 
 const StatusBadge = ({ status }) => {
-  const s = STATUS_MAP[status] || STATUS_MAP.SCHEDULED;
+  const s = STATUS_MAP[status] || STATUS_MAP.PAYMENT_PENDING;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${s.bg} ${s.text}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${s.bg} ${s.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
       {s.label}
     </span>
@@ -118,7 +125,7 @@ const KpiCard = ({ card }) => {
           <card.icon className={`w-5 h-5 ${card.iconColor}`} strokeWidth={2} />
         </div>
         <span className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-full
-          ${card.trend >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+          ${card.trend >= 0 ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400'}`}>
           <Trend className="w-3 h-3" />
           {Math.abs(card.trend)}%
         </span>
@@ -146,10 +153,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     Promise.all([
-      apiService.get('/api/v1/dashboard/stats').catch(() => null),
+      apiService.get('/api/v1/dashboard/stats').catch(err => {
+        console.error('[Dashboard] Stats API failed:', err?.response?.data?.message || err.message);
+        return null;
+      }),
       apiService.get('/api/v1/dashboard/revenue-trend').catch(() => []),
       apiService.get('/api/v1/dashboard/appointment-distribution').catch(() => []),
-      apiService.get('/api/v1/appointments?page=0&size=5').catch(() => []),
+      apiService.get('/api/v1/appointments?page=0&size=5').catch(err => {
+        console.error('[Dashboard] Appointments API failed:', err?.response?.data?.message || err.message);
+        return [];
+      }),
     ]).then(([stats, revTrend, dist, appts]) => {
       if (stats) {
         setKpiCards([
@@ -172,7 +185,7 @@ const Dashboard = () => {
   }, []);
 
   const gridColor = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
-  const tickColor = theme === 'dark' ? '#475569' : '#94A3B8';
+  const tickColor = theme === 'dark' ? '#475569' : '#64748B';
 
   return (
     <motion.div variants={containerV} initial="initial" animate="animate">
@@ -198,7 +211,7 @@ const Dashboard = () => {
               <h2 className="text-[15px] font-semibold text-tx1">Revenue Trend</h2>
               <p className="text-xs text-tx3 mt-0.5">Last 7 months</p>
             </div>
-            <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full flex items-center gap-1">
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-1 rounded-full flex items-center gap-1">
               <TrendingUp className="w-3 h-3" /> {kpiCards[3]?.trend ?? 0}%
             </span>
           </div>
@@ -260,7 +273,7 @@ const Dashboard = () => {
             <p className="text-xs text-tx3 mt-0.5">Today · {recentAppts.length} records</p>
           </div>
           <Link to="/appointments"
-            className="flex items-center gap-1.5 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+            className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -290,10 +303,10 @@ const Dashboard = () => {
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 + i * 0.06 }}
-                      className="border-b border-border last:border-0 hover:bg-surface/50 transition-colors"
+                      className="border-b border-border last:border-0 hover:bg-slate-50 dark:hover:bg-surface/70 transition-colors"
                     >
                       <td className="px-5 py-3.5">
-                        <span className="font-mono text-[11px] text-tx3">{a.appointmentCode}</span>
+                        <span className="font-mono text-[11px] font-medium text-tx2">{a.appointmentCode}</span>
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-[13px] font-medium text-tx1">{a.patientName}</span>

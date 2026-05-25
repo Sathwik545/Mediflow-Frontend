@@ -111,6 +111,9 @@ const LoginPage = () => {
       apiService.setAuthToken(data.accessToken);
       apiService.setRefreshToken(data.refreshToken);
       apiService.setUsername(data.username);
+      // Store the full profile so role-scoped pages (ConsultationList etc.) can
+      // choose the correct API endpoint without an extra round-trip.
+      apiService.setStoredUser(data);
       navigate('/dashboard', { replace: true });
     } catch (err) {
       const parsed = parseApiError(err);

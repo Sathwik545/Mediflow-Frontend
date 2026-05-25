@@ -10,9 +10,12 @@ const PAGE_SIZE = 6;
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
 const AVATAR_COLORS = [
-  'bg-indigo-500/20 text-indigo-300', 'bg-cyan-500/20 text-cyan-300',
-  'bg-emerald-500/20 text-emerald-300', 'bg-amber-500/20 text-amber-300',
-  'bg-rose-500/20 text-rose-300', 'bg-purple-500/20 text-purple-300',
+  'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300',
+  'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
+  'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+  'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300',
+  'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300',
 ];
 const avatarColor = name => AVATAR_COLORS[((name || '?').charCodeAt(0)) % AVATAR_COLORS.length];
 const initials    = name => (name || '?').split(' ').map(n => n[0]).slice(0, 2).join('');
@@ -29,19 +32,19 @@ const parseApiErrors = err => {
 /* ─── Shared small components ────────────────────────────────────── */
 const StatusBadge = ({ status }) =>
   status === 'ACTIVE'
-    ? <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Active</span>
-    : <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-500/10 text-slate-400"><span className="w-1.5 h-1.5 rounded-full bg-slate-500" />Inactive</span>;
+    ? <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />Active</span>
+    : <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-500/15 text-slate-600 dark:text-slate-300"><span className="w-1.5 h-1.5 rounded-full bg-slate-500 dark:bg-slate-400" />Inactive</span>;
 
 const FieldError = ({ errors, name }) =>
   errors?.[name] ? <p className="text-[11px] text-rose-400 mt-1">{errors[name]}</p> : null;
 
 const inputCls = (errors, name) =>
   `w-full h-9 bg-surface border rounded-xl px-3 text-[13px] text-tx1 placeholder:text-tx3 outline-none
-   focus:ring-2 focus:ring-indigo-500/10 transition-all
+   focus:ring-2 focus:ring-indigo-500/20 transition-all
    ${errors?.[name] ? 'border-rose-500/60 focus:border-rose-500/60' : 'border-border focus:border-indigo-500/60'}`;
 
-const SEL = 'w-full h-9 bg-surface border border-border rounded-xl px-3 text-[13px] text-tx1 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/10 transition-all';
-const TA  = 'w-full bg-surface border border-border rounded-xl px-3 py-2 text-[13px] text-tx1 placeholder:text-tx3 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none';
+const SEL = 'w-full h-9 bg-surface border border-border rounded-xl px-3 text-[13px] text-tx1 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all';
+const TA  = 'w-full bg-surface border border-border rounded-xl px-3 py-2 text-[13px] text-tx1 placeholder:text-tx3 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none';
 
 const FormField = ({ label, required, children }) => (
   <div className="flex flex-col gap-1.5">
@@ -367,6 +370,7 @@ const Patients = () => {
   const [page,         setPage]         = useState(0);
   const [patients,     setPatients]     = useState([]);
   const [loading,      setLoading]      = useState(true);
+  const [loadError,    setLoadError]    = useState(null);
   const [showAdd,      setShowAdd]      = useState(false);
   const [editTarget,   setEditTarget]   = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -377,9 +381,13 @@ const Patients = () => {
 
   const loadPatients = () => {
     setLoading(true);
+    setLoadError(null);
     apiService.get('/api/v1/patients?size=100')
       .then(data => setPatients(Array.isArray(data) ? data : (data?.content ?? [])))
-      .catch(() => setPatients([]))
+      .catch(err => {
+        setPatients([]);
+        setLoadError(err?.response?.data?.message || 'Failed to load patients. Please try again.');
+      })
       .finally(() => setLoading(false));
   };
 
@@ -431,6 +439,15 @@ const Patients = () => {
     <>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
+        {/* Load error banner */}
+        {loadError && (
+          <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2"/><line x1="12" y1="8" x2="12" y2="12" strokeWidth="2"/><line x1="12" y1="16" x2="12.01" y2="16" strokeWidth="2"/></svg>
+            {loadError}
+            <button onClick={loadPatients} className="ml-auto text-xs font-medium underline hover:no-underline">Retry</button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
@@ -452,7 +469,7 @@ const Patients = () => {
               onChange={e => { setSearch(e.target.value); setPage(0); }}
               placeholder="Search by name, code or email…"
               className="w-full h-10 bg-card border border-border rounded-xl pl-9 pr-4 text-[13px] text-tx1 placeholder:text-tx3
-                focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all"
+                focus:outline-none focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/20 transition-all"
             />
           </div>
           <div className="flex gap-2">
@@ -492,7 +509,7 @@ const Patients = () => {
                   </tr>
                 ) : pageData.map((p, i) => (
                   <motion.tr key={p.patientCode} variants={rowV} transition={{ delay: i * 0.04 }}
-                    className="border-b border-border last:border-0 hover:bg-surface/40 transition-colors group">
+                    className="border-b border-border last:border-0 hover:bg-slate-50 dark:hover:bg-surface/70 transition-colors group">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${avatarColor(p.fullName)}`}>
@@ -518,12 +535,12 @@ const Patients = () => {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-1">
                         <button onClick={() => setEditTarget(p)}
-                          className="p-1.5 rounded-lg text-tx3 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors" title="Edit">
+                          className="p-1.5 rounded-lg text-tx3 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors" title="Edit">
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         {p.status === 'ACTIVE' && (
                           <button onClick={() => setDeleteTarget(p)}
-                            className="p-1.5 rounded-lg text-tx3 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Deactivate">
+                            className="p-1.5 rounded-lg text-tx3 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors" title="Deactivate">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
